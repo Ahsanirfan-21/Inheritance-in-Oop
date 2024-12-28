@@ -1,0 +1,140 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Person {
+protected:
+    string name;
+    int age;
+
+public:
+    Person(const string &name, int age) {
+        if (age <= 0) {
+            cout << "Error: Age must be positive." << endl;
+            this->name = "Invalid";
+            this->age = 0;
+        } else {
+            this->name = name;
+            this->age = age;
+        }
+    }
+
+    void displayPerson() const {
+        cout << "Name: " << name << ", Age: " << age << endl;
+    }
+};
+
+class Faculty : public Person {
+private:
+    string department;
+    double salary;
+
+public:
+    Faculty(const string &name, int age, const string &department, double salary)
+        : Person(name, age) {
+        if (salary < 0) {
+            cout << "Error: Salary must be non-negative." << endl;
+            this->department = "Invalid";
+            this->salary = 0.0;
+        } else {
+            this->department = department;
+            this->salary = salary;
+        }
+    }
+
+    void displayFaculty() const {
+        displayPerson();
+        cout << "Department: " << department << ", Salary: " << salary << endl;
+    }
+};
+
+class Student : public Person {
+private:
+    string major;
+    double GPA;
+
+public:
+    Student(const string &name, int age, const string &major, double GPA)
+        : Person(name, age) {
+        if (GPA < 0.0 || GPA > 4.0) {
+            cout << "Error: GPA must be between 0.0 and 4.0." << endl;
+            this->major = "Invalid";
+            this->GPA = 0.0;
+        } else {
+            this->major = major;
+            this->GPA = GPA;
+        }
+    }
+
+    void displayStudent() const {
+        displayPerson();
+        cout << "Major: " << major << ", GPA: " << GPA << endl;
+    }
+};
+
+class Course {
+private:
+    string courseName;
+    Faculty *instructor;
+    Student *students[3];
+
+public:
+    Course(const string &courseName) : courseName(courseName), instructor(nullptr) {
+        for (int i = 0; i < 3; ++i) {
+            students[i] = nullptr;
+        }
+    }
+
+    void setInstructor(Faculty *faculty) {
+        instructor = faculty;
+    }
+
+    void addStudent(Student *student, int index) {
+        if (index < 0 || index >= 3) {
+            cout << "Error: Index must be between 0 and 2." << endl;
+        } else {
+            students[index] = student;
+        }
+    }
+
+    void displayCourse() const {
+        cout << "Course Name: " << courseName << endl;
+        if (instructor) {
+            cout << "Instructor Details:" << endl;
+            instructor->displayFaculty();
+        }
+        cout << "Enrolled Students:" << endl;
+        for (int i = 0; i < 3; ++i) {
+            if (students[i]) {
+                cout << "Student " << i + 1 << ":" << endl;
+                students[i]->displayStudent();
+            }
+        }
+    }
+
+    ~Course() {
+        delete instructor;
+        for (int i = 0; i < 3; ++i) {
+            delete students[i];
+        }
+    }
+};
+
+int main() {
+    Faculty *faculty1 = new Faculty("Dr. Smith", 45, "Computer Science", 75000);
+    Faculty *faculty2 = new Faculty("Dr. Brown", 50, "Mathematics", 80000);
+
+    Student *student1 = new Student("Alice", 20, "Software Engineering", 3.8);
+    Student *student2 = new Student("Bob", 22, "Data Science", 3.5);
+    Student *student3 = new Student("Charlie", 19, "Artificial Intelligence", 3.9);
+
+    Course course("Advanced Programming");
+    course.setInstructor(faculty1);
+    course.addStudent(student1, 0);
+    course.addStudent(student2, 1);
+    course.addStudent(student3, 2);
+
+    course.displayCourse();
+
+    return 0;
+}
